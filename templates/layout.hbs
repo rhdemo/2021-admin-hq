@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+      {{#if accessDenied}}
+      const ACCESS_DENIED = true
+      {{else}}
+      const ACCESS_DENIED = false
+      {{/if}}
+
+      /**
+       * This is a global store that's available across all pages.
+       * It provides access to the latest server-sent event data.
+       */
+      const getSseStore = window.getSseStore = (function () {
+        const store = Vue.observable({
+          heartbeat: {},
+          gameConfig: {},
+          connected: false
+        })
+
+        if (ACCESS_DENIED) {
+          return () => store
+        }
+
+        let reconnectTimer = null
+        let source = null
+        const PAYLOAD_TYPES = {
+          CONNECTED: 'connected',
+          HEARTBEAT: 'heartbeat',
+          GAME_CONFIG: 'game-config'
+        }
+
+        function connectSse () {
+          source = new EventSource("/sse");
+          source.onopen = function onSourceOpen () {
+            console.log('SSE connection successful')
+            clearInterval(reconnectTimer)
+          }
+
+          source.onerror = function onSourceClose (e) {
+            console.error('SSE connection error', e)
+
+            if (navigator.userAgent.match(/firefox/gi)) {
+              // Firefox does not auto reconnect
+              reconnectTimer = setTimeout(() => connectSse(), 2500)
+            }
+
+            store.connected = false
+          }
+
+          source.onmessage = function (event) {
+            let data
+
+            try {
+              data = JSON.parse(event.data)
+            } catch (e) {
+              console.error('failed to parse SSE payload')
+            }
+
+            if (data) processSseMessage(data)
+          };
+        }
+
+        function processSseMessage(data) {
+          console.log('processing payload:', data)
+
+          if (data.event === PAYLOAD_TYPES.HEARTBEAT) {
+            processHeartbeat(data)
+          } else if (data.event === PAYLOAD_TYPES.CONNECTED) {
+            processConnected(data)
+          } else if (data.event === PAYLOAD_TYPES.GAME_CONFIG) {
+            processGameConfig(data)
+          } else {
+            console.log('received unknown payload type:', data)
+          }
+        }
+
+        function processConnected(data) {
+          store.connected = true
+        }
+
+        function processHeartbeat(data) {
+          store.heartbeat = data
+        }
+
+        function processGameConfig(data) {
+          store.gameConfig = data
+        }
+
+        connectSse()
+
+        return () => store
+      })()
+    </script>
+  </head>
+
+  <body>
+    <div id="sse" v-if="show" v-bind:class="colorClass" class="grid grid-cols-2 gap-4 p-4">
+      <div class="status text-white">\{{connectionStatus}}</div>
+      <div class="heartbeat text-right text-white">\{{heartbeatTs}}</div>
+    </div>
+    {{{body}}}
+  </body>
+
+  <script>
+    const CONNECTION_STATUS = {
+      CONNECTING: 'Connecting',
+      CONNECTED: 'Connected'
+    }
+
+    const store = getSseStore()
+    const ConnectionStatusApp = new Vue({
+      el: '#sse',
+      data: {
+        show: !ACCESS_DENIED
+      },
+      computed: {
+        heartbeatTs: () => {
+          if (store.connected && store.heartbeat.ts || store.heartbeat.ts && !store.connected) {
+            // Even if disconnected, continue to show the latest heartbeat
+            return `Latest Heartbeat: ${new Date(store.heartbeat.ts).toLocaleString('us').split(', ')[1]}`
+          } else {
+            return 'Heartbeat Pending...'
+          }
+        },
+        connectionStatus: () => {
+          return store.connected ? CONNECTION_STATUS.CONNECTED : `${CONNECTION_STATUS.CONNECTING}...`
+        },
+        colorClass: () => {
+          return store.connected ? 'bg-green-500' : 'bg-red-500'
+        }
+      }
+    })
+
+  </script>
+
+</html>

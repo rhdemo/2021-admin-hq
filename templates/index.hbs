@@ -1,0 +1,62 @@
+<div class="pt-4 px-8">
+
+  <h2 class="text-3xl">
+    Game State
+  </h2>
+
+  <div id="game-state-buttons" class="flex flex-row py-4">
+    <div class="flex">
+      <button type="button" v-on:click="changeGameState('lobby')" class="flex-shrink-0 bg-blue-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-blue-200">Lobby</button>
+    </div>
+    <div class="flex pl-4">
+      <button type="button" v-on:click="changeGameState('active')" class="flex-shrink-0 bg-green-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-green-200">Play</button>
+    </div>
+    <div class="flex pl-4">
+      <button type="button" v-on:click="changeGameState('paused')" class="flex-shrink-0 bg-yellow-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-yellow-200">Pause</button>
+    </div>
+    <div class="flex pl-4">
+      <button type="button" v-on:click="changeGameState('stopped')" class="flex-shrink-0 bg-red-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-red-200">Stop</button>
+    </div>
+  </div>
+
+  <h2 class="text-3xl py-4">
+    Game State JSON
+  </h2>
+  <pre id="game-config-json" class="p-4 bg-gray-200 rounded max-w-md shadow-inner">\{{gameConfig}}</pre>
+
+  <script>
+    const GameConfig = new Vue({
+      el: '#game-config-json',
+      computed: {
+        gameConfig: () => {
+          if (getSseStore().gameConfig) {
+            return getSseStore().gameConfig.data
+          } else {
+            return '{}'
+          }
+        }
+      },
+    })
+
+    const GameStateButtons = new Vue({
+      el: '#game-state-buttons',
+      methods: {
+        changeGameState: async function (desiredState) {
+          console.log('changing game state to:', desiredState)
+          try {
+            const response = await fetch(`/game/${desiredState}`, {
+              method: 'PUT'
+            })
+
+            if (!response.ok) {
+              alert('Received error response from server when attempting to change game state. Check console for info.')
+            }
+
+          } catch (e) {
+            console.error('error changing game state', e)
+          }
+        }
+      }
+    })
+  </script>
+</div>
