@@ -17,6 +17,9 @@
     <div class="flex pl-4">
       <button type="button" v-on:click="changeGameState('stopped')" class="flex-shrink-0 bg-red-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-red-200">Stop</button>
     </div>
+    <div class="flex pl-4">
+      <button type="button" v-on:click="changeGameState('reset')" class="flex-shrink-0 bg-gray-600 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200">Reset (Danger Zone)</button>
+    </div>
   </div>
 
   <h2 class="text-3xl py-4">
@@ -42,10 +45,18 @@
       el: '#game-state-buttons',
       methods: {
         changeGameState: async function (desiredState) {
+          if (desiredState === 'reset') {
+            let really = confirm('This will wipe all data for the current game. Players will also lose their usernames and score. Continue?')
+
+            if (!really) {
+              alert('Understood. The game has not been reset.')
+            }
+          }
+
           console.log('changing game state to:', desiredState)
           try {
             const response = await fetch(`/game/${desiredState}`, {
-              method: 'PUT'
+              method: desiredState === 'reset' ? 'POST' : 'PUT'
             })
 
             if (!response.ok) {

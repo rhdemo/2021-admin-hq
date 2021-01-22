@@ -1,10 +1,8 @@
 import { FastifyPluginCallback } from 'fastify';
 import fp from 'fastify-plugin';
 import * as sse from 'fastify-sse'
-import { OutgoingMessage } from 'http';
 import { DATAGRID_GAME_DATA_KEY } from '../config';
 import { getGameDataLayer } from '../datagrid';
-import game from './game';
 
 export interface SsePluginOptions {}
 

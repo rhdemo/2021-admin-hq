@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { FastifyPluginCallback, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { DATAGRID_GAME_DATA_KEY } from '../config';
@@ -10,10 +11,9 @@ export interface GamePluginOptions {
 
 enum GameState {
   Lobby = 'lobby',
-  Stopped = 'stopped',
-  Paued = 'paused',
-  Loading = 'loading',
-  Active = 'active'
+  Active = 'active',
+  Paused = 'paused',
+  Stopped = 'stopped'
 }
 
 type GameConfigurationData = {
@@ -27,6 +27,23 @@ const healthPlugin: FastifyPluginCallback<GamePluginOptions> = (
   options,
   done
 ) => {
+
+  server.route({
+    method: 'POST',
+    url: '/game/reset',
+    preHandler: server.auth([server.basicAuth]),
+    handler: async (req, reply) => {
+      const dal = await getGameDataLayer()
+
+      await dal.client.put(DATAGRID_GAME_DATA_KEY, JSON.stringify({
+        uuid: randomBytes(8).toString('hex'),
+        date: new Date().toJSON(),
+        state: GameState.Lobby
+      }))
+
+      return reply.send('ok')
+    }
+  })
   server.route({
     method: 'PUT',
     url: '/game/:state',
