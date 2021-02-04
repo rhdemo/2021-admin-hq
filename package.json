@@ -1,8 +1,8 @@
 {
-  "name": "refresh",
+  "name": "2021-game-admin-hq",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "LOG_LEVEL=trace NODE_ENV=dev ADMIN_USERNAME=admin ADMIN_PASSWORD=password nodemon -e ts,hbs -x ts-node src/index.ts | pino-pretty -t",
@@ -33,12 +33,12 @@
     }
   },
   "dependencies": {
+    "@evanshortiss/fastify-sse": "~0.1.5",
     "env-var": "~7.0.0",
     "fastify": "~3.9.2",
     "fastify-auth": "~1.0.1",
     "fastify-basic-auth": "~1.0.1",
     "fastify-plugin": "~3.0.0",
-    "fastify-sse": "github:evanshortiss/fastify-sse#types",
     "fastify-static": "~3.4.0",
     "handlebars": "~4.7.6",
     "handlebars-layouts": "~3.1.4",

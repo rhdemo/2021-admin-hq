@@ -1,6 +1,6 @@
 import { FastifyPluginCallback } from 'fastify';
 import fp from 'fastify-plugin';
-import * as sse from 'fastify-sse'
+import * as sse from '@evanshortiss/fastify-sse'
 import { DATAGRID_GAME_DATA_KEY } from '../config';
 import { getGameDataLayer } from '../datagrid';
 
