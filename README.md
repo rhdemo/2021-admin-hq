@@ -1,6 +1,9 @@
 # 2021 Game Admin HQ
 
-Provides the ability to monitor and change game state.
+Provides the ability to monitor and change game state. The
+[Game WebSocket Server](https://github.com/rhdemo/2021-frontend-wss) watches
+game state changes. This can be used to create dramatic pauses during a demo,
+or restart the game.
 
 ## Usage
 
@@ -8,9 +11,14 @@ Provides the ability to monitor and change game state.
 
 _NOTE: Local development requires that Infinispan is started using the script(s) in the [2021-frontend-wss](https://github.com/rhdemo/2021-frontend-wss) repository._
 
+Local development uses a Docker container that mounts in the *src/* directory.
+
 ```
-./scripts/node.start.sh
+./scripts/node.sh
 ```
+
+Login using `admin` and `password` when the service starts running on the
+interface and port.
 
 ### Configuration
 
