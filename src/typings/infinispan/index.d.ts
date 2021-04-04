@@ -70,7 +70,7 @@ declare module 'infinispan' {
     disconnect(): Promise<InfinispanClient>;
 
     stats(): Promise<unknown[]>;
-
+    clear(): Promise<void>;
     get(key: string): Promise<string | undefined>;
     put(
       key: string,
