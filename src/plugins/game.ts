@@ -13,6 +13,7 @@ enum GameState {
   Lobby = 'lobby',
   Active = 'active',
   Paused = 'paused',
+  Replay = 'replay',
   Stopped = 'stopped'
 }
 
@@ -34,9 +35,6 @@ const healthPlugin: FastifyPluginCallback<GamePluginOptions> = (
     preHandler: server.auth([server.basicAuth]),
     handler: async (req, reply) => {
       const dal = await getGameDataLayer()
-
-      // Flush ALL old game data
-      await dal.client.clear()
 
       await dal.client.put(DATAGRID_GAME_DATA_KEY, JSON.stringify({
         uuid: randomBytes(8).toString('hex'),
