@@ -54,7 +54,12 @@ const healthPlugin: FastifyPluginCallback<GamePluginOptions> = (
         await cache.disconnect()
       });
 
-      await Promise.all(clearOperations)
+      try {
+        await Promise.all(clearOperations)
+      } catch (e) {
+        server.log.error('error wiping infinispan cache for reset')
+        server.log.error(e);
+      }
 
       return reply.send('ok')
     }
