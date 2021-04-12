@@ -3,6 +3,7 @@ import { FastifyPluginCallback, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { DATAGRID_GAME_DATA_KEY } from '../config';
 import { getGameDataLayer } from '../datagrid';
+import getDataGridClientForCacheNamed from '../datagrid/client';
 
 export interface GamePluginOptions {
   username: string
@@ -41,6 +42,19 @@ const healthPlugin: FastifyPluginCallback<GamePluginOptions> = (
         date: new Date().toJSON(),
         state: GameState.Lobby
       }))
+
+      const clearOperations = [
+        'players',
+        'players-scores',
+        'players-shots',
+        'match-instances'
+      ].map(async (name) => {
+        const cache = await getDataGridClientForCacheNamed(name)
+        await cache.clear()
+        await cache.disconnect()
+      });
+
+      await Promise.all(clearOperations)
 
       return reply.send('ok')
     }
