@@ -3,7 +3,7 @@ import { DATAGRID_HOST, DATAGRID_HOTROD_PORT } from '../config';
 import infinispan from 'infinispan';
 import log from '../log';
 
-export async function getClient(
+async function getClient(
   nodes: InfinispanNode[],
   cacheName: string
 ): Promise<InfinispanClient> {
